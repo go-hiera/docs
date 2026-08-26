@@ -684,9 +684,9 @@
 templates in <code>hiera.yaml</code> — may contain <code>%{...}</code> tokens. The engine resolves
 them recursively: nested strings inside arrays and hashes are interpolated too,
 so a whole structured value is expanded before it is merged.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># data resolved against scope {facts:{os:{family:&quot;Debian&quot;}}, trusted:{certname:&quot;web01&quot;}}</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">motd</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Welcome</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">%{trusted.certname}</span><span class="nv"> </span><span class="s">(%{facts.os.family})&quot;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># -&gt; &quot;Welcome to web01 (Debian)&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># data resolved against scope {facts:{os:{family:"Debian"}}, trusted:{certname:"web01"}}</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">motd</span><span class="p">:</span><span class="w"> </span><span class="s">"Welcome</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">%{trusted.certname}</span><span class="nv"> </span><span class="s">(%{facts.os.family})"</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># -&gt; "Welcome to web01 (Debian)"</span>
 </code></pre></div>
 <h2 id="the-grammar">The <code>%{...}</code> grammar<a class="headerlink" href="#the-grammar" title="Permanent link">&para;</a></h2>
 <p>Between <code>%{</code> and the first <code>}</code> is an <strong>expression</strong>, with surrounding whitespace
@@ -747,8 +747,8 @@ splice its (stringified) value into the surrounding string.</p>
 its <strong>type</strong> — so a string value can alias an array or a hash, not just a
 scalar's text:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># common.yaml</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nt">base_packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;nginx&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;curl&quot;</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nt">web_packages</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;%{alias(&#39;base_packages&#39;)}&quot;</span><span class="w">   </span><span class="c1"># -&gt; the ARRAY [&quot;nginx&quot;,&quot;curl&quot;], not a string</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nt">base_packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"nginx"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"curl"</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nt">web_packages</span><span class="p">:</span><span class="w">  </span><span class="s">"%{alias('base_packages')}"</span><span class="w">   </span><span class="c1"># -&gt; the ARRAY ["nginx","curl"], not a string</span>
 </code></pre></div>
 <p>Because it returns a whole value, <code>alias</code> must be the <strong>complete</strong> string:
 <code>"%{alias('x')} tail"</code> (any surrounding text, or a second token) is an error
@@ -776,8 +776,8 @@ location must not depend on data still being resolved.</p>
 expansion) tracks the stack of keys being resolved. If a key is re-entered while
 already on the stack, the engine stops with <em>"interpolation/lookup loop detected
 for key …"</em> rather than recursing forever.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">a</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;%{lookup(&#39;b&#39;)}&quot;</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">b</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;%{lookup(&#39;a&#39;)}&quot;</span><span class="w">     </span><span class="c1"># looking up &#39;a&#39; errors: loop a -&gt; b -&gt; a</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">a</span><span class="p">:</span><span class="w"> </span><span class="s">"%{lookup('b')}"</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">b</span><span class="p">:</span><span class="w"> </span><span class="s">"%{lookup('a')}"</span><span class="w">     </span><span class="c1"># looking up 'a' errors: loop a -&gt; b -&gt; a</span>
 </code></pre></div>
 
 
